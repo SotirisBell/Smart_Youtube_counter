@@ -2,7 +2,7 @@
   --------------------------------------------------------------------------------------------------------
   Create date : DEC 2023
   Project     : YOUTUBE COUNTER
-  Version     : 0.1
+  Version     : 0.2
   Author      : Sotiris Bellos
   email       : sotirisbell.com@gmail.com
   --------------------------------------------------------------------------------------------------------
@@ -33,10 +33,10 @@
 #include <YoutubeApi.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "xxxxx";
-const char* password = "xxxxx";
-#define API_KEY "xxxxx"
-#define CHANNEL_ID "xxxxx"
+const char* ssid = "Bell";
+const char* password = "2681052406";
+#define API_KEY "AIzaSyAAupTGlxGTNkhbPK_KGEhxjbbE0wjbKzA"
+#define CHANNEL_ID "UC_BmkDMrphezAV4ov2VunRg"
 //WiFiClientSecure client;
 
 WiFiClient client;
@@ -99,8 +99,8 @@ DallasTemperature sensor2(&ds18out);
 RTC_DS1307 rtc;
 //int DS_yy, DS_MM, DS_dd, DS_hh, DS_mm, DS_ss;
 int DD = 0;// , RTC = 0;
-char DoW[7][12] = { "su", "mo", "tu", "we", "th", "fr", "sa" };
-//char DoW[7][12] = { "KY", "DE", "TR", "TE", "PE", "PA", "SA" };
+//char DoW[7][12] = { "su", "mo", "tu", "wE", "th", "fr", "sa" };
+char DoW[7][12] = { "KY", "DE", "TR", "TE", "PE", "PA", "SA" };
 String NTP_tmp, RTC_tmp;
 /************************************************************************************** NTP      */
 const char* ntpServer = "pool.ntp.org";
@@ -132,6 +132,11 @@ record_type0 D_SAVED;
 record_type0 D_NOW;
 record_type0 D_MONTLY;
 record_type0 D_MTEMP;
+
+int Dviews_day = 0;
+long Dviews_snap = 0;
+int Dviews = 0;
+
 /*******************************************************************************************************/
 typedef struct {
 	bool EXISTS;
@@ -161,6 +166,7 @@ uint8_t	ardo[] = { 5, 0x08,0x10,0x2C,0x10,0x08,0x00,0x00,0x00, }; // arrow down
 uint8_t es[] = { 4, 0x00,0x58,0x68,0x68,0x00,0x00,0x00,0x00, }; //	s
 uint8_t ve[] = { 4, 0x00,0x38,0x40,0x38,0x00,0x00,0x00,0x00, }; //	v
 uint8_t el[] = { 4,0x00,0x78,0x40,0x40,0x00,0x00,0x00,0x00, }; //	l
+uint8_t DI[] = { 4,0x00,0x70,0x50,0x78,0x00,0x00,0x00,0x00, };//			d
 
 uint8_t ce[] = { 4,0x00,0x78,0x48,0x48,0x00,0x00,0x00,0x00, };// c
 uint8_t dia[] = { 1, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, }; // :
@@ -191,17 +197,17 @@ uint8_t CS[] = { 3, 0x66, 0x5A, 0x4A, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	S
 // ENGLISH CHARS
 uint8_t ES[] = { 3, 0x4E, 0x4A, 0x7A, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	s
 uint8_t EU[] = { 3, 0x7E, 0x40, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	u
-uint8_t EM[] = { 3, 0x7E,0x0C,0x7E,0x00,0x00,0x00,0x00,0x00, }; //	m
+uint8_t EM[] = { 3, 0x7E,0x0C,0x7E,0x00,0x00,0x00,0x00,0x00, }; //			m
 uint8_t EO[] = { 3, 0x7E, 0x42, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	o
 uint8_t ET[] = { 3, 0x02, 0x7E, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	t
-uint8_t EW[] = { 3, 0x7E,0x30,0x7E,0x00,0x00,0x00,0x00,0x00, }; //	w
+uint8_t EW[] = { 3, 0x7E,0x30,0x7E,0x00,0x00,0x00,0x00,0x00, }; //			w
 uint8_t EF[] = { 3, 0x7E, 0x0A, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	f
 uint8_t ER[] = { 3, 0x7E, 0x1A, 0x6E, 0x00, 0x00, 0x00, 0x00, 0x00, }; //	r
-uint8_t EH[] = { 3, 0x7E,0x08,0x7E,0x00,0x00,0x00,0x00,0x00, }; //	h
+uint8_t EH[] = { 3, 0x7E,0x08,0x7E,0x00,0x00,0x00,0x00,0x00, }; //			h
 uint8_t EA[] = { 3, 0x7E, 0x0A, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, }; //   a
-uint8_t bb[] = { 7, 0xFF,0xFF,0x91,0x9F,0x9F,0xF0,0xF0,0x00, };//	b
-uint8_t be[] = { 6, 0xFC,0xFC,0xA4,0xA4,0xBC,0xBC,0x00,0x00, };//	e
-uint8_t bl[] = { 4,0x80,0xFF,0xFF,0x80,0x00,0x00,0x00,0x00, };//	l
+uint8_t bb[] = { 7, 0xFF,0xFF,0x91,0x9F,0x9F,0xF0,0xF0,0x00, };//			b
+uint8_t be[] = { 6, 0xFC,0xFC,0xA4,0xA4,0xBC,0xBC,0x00,0x00, };//			e
+uint8_t bl[] = { 4,0x80,0xFF,0xFF,0x80,0x00,0x00,0x00,0x00, };//			l
 
 
 
@@ -284,7 +290,7 @@ void setup() {
 	PP.addChar('A', CA);
 	PP.addChar('S', CS);
 
-
+	PP.addChar('d', DI);
 	PP.addChar('s', ES);
 	PP.addChar('u', EU);
 	PP.addChar('m', EM);
@@ -427,7 +433,8 @@ void GET_EEPROM()
 	D_SAVED.likes = EEPROM.readLong(50);
 	D_SAVED.comms = EEPROM.readLong(60);
 
-
+	Dviews_day= EEPROM.readInt(70);
+	Dviews_snap = EEPROM.readLong(80);
 
 	debug("D_SAVED.month = ");	debugln(D_SAVED.month);
 	debug("D_SAVED.day = ");	debugln(D_SAVED.day);
@@ -493,7 +500,7 @@ void TDISPLAY()
 
 again:
 	DD += 1;
-	if (DD > 12) DD = 1;
+	if (DD > 13) DD = 1;
 	debug("update display   dd= ");
 	debugln(DD);
 	switch (DD)
@@ -502,7 +509,7 @@ again:
 	case 1:
 		debug("display temp IN  ");
 		GET_DS18B20(1);
-		if (TIN == -127)
+		if (TIN < -30)
 		{
 			debugln("sensor IN error");
 			DD += 1;
@@ -529,7 +536,7 @@ again:
 	next2:
 		debug("display temp OUT  ");
 		GET_DS18B20(2);
-		if (TOUT == -127)
+		if (TOUT < -30)
 		{
 			debugln("sensor OUT error");
 			//DD += 1;
@@ -629,14 +636,32 @@ again:
 		PP.print("+" + String(D_MONTLY.views) + "v");
 		debugln(D_MONTLY.views);
 		break;
+	
 	case 9:
 	next9:
+		debug("display dayly views   ");
+		if (D_NOW.views == 0)
+		{
+			debugln("NO montly views");
+			DD += 1;
+			goto next10;
+		}
+		//debug(Dviews_day); debug(Dviews_snap);
+		PP.print("+" + String(Dviews) + "d");
+		debugln(Dviews);
+	
+	
+		break;
+	
+	
+	case 10:
+	next10:
 		debug("display likes   ");
 		if (D_NOW.likes == 0)
 		{
 			debugln("NO likes");
 			DD += 1;
-			goto next10;
+			goto next11;
 		}
 		PP.print(String(D_NOW.likes) + "!");
 		if (D_MTEMP.likes == 0) D_MTEMP.likes = D_MONTLY.likes;
@@ -649,12 +674,12 @@ again:
 		debugln(D_NOW.likes);
 
 		break;
-	case 10:
-	next10:
+	case 11:
+	next11:
 		debug("display montly likes   ");
 		if (D_NOW.likes == 0)
 		{
-			goto next11;
+			goto next12;
 			debugln("NO montly likes");
 		}
 		PP.print("+" + String(D_MONTLY.likes) + "!");
@@ -662,14 +687,14 @@ again:
 		break;
 
 
-	case 11:
-	next11:
+	case 12:
+	next12:
 		debug("display comments   ");
 		if (D_NOW.comms == 0)
 		{
 			debugln("NO comments");
 			DD += 1;
-			goto next12;
+			goto next13;
 		}
 		PP.print(String(D_NOW.comms) + "@");
 		if (D_MTEMP.comms == 0) D_MTEMP.comms = D_MONTLY.comms;
@@ -681,8 +706,8 @@ again:
 
 		debugln(D_NOW.comms);
 		break;
-	case 12:
-	next12:
+	case 13:
+	next13:
 		debug("display montly comments   ");
 		if (D_NOW.comms == 0)
 		{
@@ -722,6 +747,7 @@ void GET_DS18B20(int i)
 		debug("IN: ");
 		delay(10);
 		TIN = sensor1.getTempCByIndex(0);
+		TIN = TIN - 2;// sensor need calibration
 		debugln(TIN);
 		break;
 	case 2:
@@ -729,6 +755,7 @@ void GET_DS18B20(int i)
 		debug("OUT: ");
 		delay(10);
 		TOUT = sensor2.getTempCByIndex(0);
+		TOUT = TOUT - 2; // sensor need calibration
 		debugln(TOUT);
 		break;
 	}
@@ -830,7 +857,7 @@ void GET_NTP()
 	NTP.TH = timeinfo.tm_hour;
 	NTP.TM = timeinfo.tm_min;
 	NTP.TS = timeinfo.tm_sec;
-	NTP.DOW = timeinfo.tm_wday - 1;
+	NTP.DOW = timeinfo.tm_wday ;
 	if (NTP.TH < 10)
 	{
 		TIME = "0" + String(NTP.TH);
@@ -857,7 +884,7 @@ void GET_NTP()
 /*_____________________________________________________________________________________________________*/
 void GET_RTC()
 {
-
+	if (RTC.EXISTS == 0) return;
 	DateTime now = rtc.now();
 
 	RTC.DY = now.year();
@@ -866,7 +893,7 @@ void GET_RTC()
 	RTC.TH = now.hour();
 	RTC.TM = now.minute();
 	RTC.TS = now.second();
-	RTC.DOW = now.dayOfTheWeek() - 1;
+	RTC.DOW = now.dayOfTheWeek() ;
 	if (RTC.TH < 10)
 	{
 		TIME = "0" + String(RTC.TH);
@@ -1190,6 +1217,18 @@ void GET_ANALITICS()
 		D_MONTLY.comms = D_NOW.comms - D_SAVED.comms;
 	}
 
+
+	if (Dviews_day != TIME_NOW.DD)
+	{
+		Dviews_day = TIME_NOW.DD;
+		EEPROM.writeInt(70, TIME_NOW.DD);
+		Dviews_snap = D_NOW.views;
+		EEPROM.writeLong(80,Dviews_snap);
+		EEPROM.commit();
+	
+	}
+
+	Dviews = D_NOW.views - Dviews_snap;
 
 }
 
