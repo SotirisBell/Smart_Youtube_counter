@@ -33,10 +33,10 @@
 #include <YoutubeApi.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "Bell";
-const char* password = "2681052406";
-#define API_KEY "AIzaSyAAupTGlxGTNkhbPK_KGEhxjbbE0wjbKzA"
-#define CHANNEL_ID "UC_BmkDMrphezAV4ov2VunRg"
+const char* ssid = "xxx";
+const char* password = "xxx";
+#define API_KEY "xxx"
+#define CHANNEL_ID "xxx"
 //WiFiClientSecure client;
 
 WiFiClient client;
